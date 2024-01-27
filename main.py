@@ -126,6 +126,15 @@ class busTicketReservation:
         self.root.geometry("1032x745")
         self.style=ttk.Style()
         self.style.configure('TNotebook.Tab', font=('URW Gothic L','15'), padding=[10, 10],bg="transparent")
+        self.login_success=False
+        self.db = mysql.connect(
+                host='localhost', 
+                port=3306,
+                user='root',
+                passwd='root',
+                database='btr'
+            )
+        self.conn=self.db.cursor()
 
         #create a frame for welcome image
         welcome_image=Image.open("Bus Ticket Reservation System\TravelDosth\images\welcome.png") 
@@ -165,9 +174,14 @@ class busTicketReservation:
         welcome_label.place(x=450,y=10)
 
 
-        #sign in/ sign up button top right corner
-        sign_in_button=Button(menu_frame,text="Sign In / Sign Up",command=self.sign_in_page,font=("times new roman",12),bg="white",fg="black",cursor="hand2")
-        sign_in_button.place(x=1180,y=7)
+        if self.login_success:
+            # Account Details button
+            account_details_button = Button(menu_frame, text="Account Details", command=self.account_details_page, font=("times new roman", 12), bg="white", fg="black", cursor="hand2")
+            account_details_button.place(x=1180, y=7)
+        else:
+            # Sign In / Sign Up button
+            sign_in_button = Button(menu_frame, text="Sign In / Sign Up", command=self.login_page, font=("times new roman", 12), bg="white", fg="black", cursor="hand2")
+            sign_in_button.place(x=1180, y=7)
 
         #frame from search bar
         search_frame=Frame(self.root,bg="#ADD8E6")
@@ -208,8 +222,119 @@ class busTicketReservation:
         pass
 
     #sign in page
-    def sign_in_page(self):
-        pass
+    def login_page(self):
+        # clear all the children
+        for child in self.root.winfo_children():
+            child.destroy()
+
+        # set the dimensions
+        window_width = 932
+        window_height = 745
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+        # bg white
+        self.root.config(bg="white")
+
+        # usernamelabel
+        username_label = Label(self.root, text="Username", font=("times new roman", 20, "bold"), bg="white", fg="black")
+        username_label.place(x=100, y=100)
+
+        # username entry
+        self.username_entry = Entry(self.root, font=("times new roman", 15), bg="lightgray", fg="black")
+        self.username_entry.place(x=100, y=150, width=250, height=30)
+
+        # password label
+        password_label = Label(self.root, text="Password", font=("times new roman", 20, "bold"), bg="white", fg="black")
+        password_label.place(x=100, y=200)
+
+        # password entry
+        self.password_entry = Entry(self.root, font=("times new roman", 15), bg="lightgray", fg="black")
+        self.password_entry.place(x=100, y=250, width=250, height=30)
+
+        # sign in button
+        sign_in_button = Button(self.root, text="Sign In", command=self.verify_login, font=("times new roman", 15, "bold"),
+                                bg="white", fg="black", cursor="hand2")
+        sign_in_button.place(x=100, y=300, width=100, height=30)
+
+        # sign up button
+        sign_up_button = Button(self.root, text="Sign Up", command=self.sign_up_page, font=("times new roman", 15, "bold"),
+                                bg="white", fg="black", cursor="hand2")
+        sign_up_button.place(x=250, y=300, width=100, height=30)
+
+
+    #sign up page
+    def sign_up_page(self):
+        #clear screen
+        for child in self.root.winfo_children():
+            child.destroy()
+
+        # set the dimensions
+        self.root.geometry("932x745")
+
+        # bg white
+        self.root.config(bg="white")
+
+        #first name label
+        first_name_label=Label(self.root,text="First Name",font=("times new roman",20,"bold"),bg="white",fg="black")
+        first_name_label.place(x=100,y=100)
+
+        #first name entry side by side
+        self.first_name_entry=Entry(self.root,font=("times new roman",15),bg="lightgray",fg="black")
+        self.first_name_entry.place(x=100,y=150,width=250,height=30)
+
+        #last name label
+        last_name_label=Label(self.root,text="Last Name",font=("times new roman",20,"bold"),bg="white",fg="black")
+        last_name_label.place(x=100,y=200)
+
+        #last name entry side by side
+        self.last_name_entry=Entry(self.root,font=("times new roman",15),bg="lightgray",fg="black")
+        self.last_name_entry.place(x=100,y=250,width=250,height=30)
+
+        #email label
+        email_label=Label(self.root,text="Email",font=("times new roman",20,"bold"),bg="white",fg="black")
+        email_label.place(x=100,y=300)
+
+        #email entry side by side
+        self.email_entry=Entry(self.root,font=("times new roman",15),bg="lightgray",fg="black")
+        self.email_entry.place(x=100,y=350,width=250,height=30)
+
+        #contact number label
+        contact_number_label=Label(self.root,text="Contact Number",font=("times new roman",20,"bold"),bg="white",fg="black")
+        contact_number_label.place(x=100,y=400)
+
+        #contact number entry side by side
+        self.contact_number_entry=Entry(self.root,font=("times new roman",15),bg="lightgray",fg="black")
+        self.contact_number_entry.place(x=100,y=450,width=250,height=30) 
+
+        #password entry side by side
+        password_label=Label(self.root,text="Password",font=("times new roman",20,"bold"),bg="white",fg="black")
+        password_label.place(x=450,y=100)
+
+        #password entry side by side
+        self.password_entry=Entry(self.root,font=("times new roman",15),bg="lightgray",fg="black")
+        self.password_entry.place(x=450,y=150,width=250,height=30)
+
+        #confirm password label
+        confirm_password_label=Label(self.root,text="Confirm Password",font=("times new roman",20,"bold"),bg="white",fg="black")
+        confirm_password_label.place(x=450,y=200)
+
+        #confirm password entry side by side
+        self.confirm_password_entry=Entry(self.root,font=("times new roman",15),bg="lightgray",fg="black")
+        self.confirm_password_entry.place(x=450,y=250,width=250,height=30)
+
+        #sign up button
+        sign_up_button=Button(self.root,text="Sign Up",command=self.create_account,font=("times new roman",15,"bold"),bg="white",fg="black",cursor="hand2")
+        sign_up_button.place(x=100,y=500,width=100,height=30)
+
+        #back to login
+        back_to_login_button=Button(self.root,text="Back to Login",command=self.login_page,font=("times new roman",15,"bold"),bg="white",fg="black",cursor="hand2")
+        back_to_login_button.place(x=100,y=550,width=200,height=30)
+
+
+
 
 
     #account details page
@@ -231,7 +356,7 @@ class busTicketReservation:
         welcome_label.place(x=450,y=10)
 
         #signout button top right corner
-        sign_out_button=Button(menu_frame,text="Sign Out",command=self.main_welcome_page,font=("times new roman",12),bg="white",fg="black",cursor="hand2")
+        sign_out_button=Button(menu_frame,text="Sign Out",command=self.sign_out,font=("times new roman",12),bg="white",fg="black",cursor="hand2")
         sign_out_button.place(x=1180,y=7)
 
         #menu 2 frame
@@ -329,13 +454,116 @@ class busTicketReservation:
 
 
 
+    #verify login
+    def verify_login(self):
+        #verify login
+        username=self.username_entry.get()
+        password=self.password_entry.get()
+
+
+
+        #check if any field is empty
+        if username=="" or password=="":
+            messagebox.showerror("Error","All fields are required",parent=self.root)
+        else:
+            try:
+                # Create a new cursor
+                with self.db.cursor() as cursor:
+                    cursor.execute("SELECT * FROM Users WHERE Username=%s AND Password=%s", (username, password))
+                    row = cursor.fetchone()
+                    if row is None:
+                        messagebox.showerror("Error", "Invalid Username or Password", parent=self.root)
+                    else:
+                        self.current_user_object = row
+                        #current user name
+                        self.current_user_name = row[1]
+                        messagebox.showinfo("Success", "Login Successful", parent=self.root)
+                        self.login_success=True
+                        self.main_welcome_page()
+
+            except Exception as e:
+                messagebox.showerror("Error", f"Error due to: {str(e)}", parent=self.root)
+
+            
+        
 
 
 
 
 
+    #create account
+    def create_account(self):   
+        #take account details
+        first_name=self.first_name_entry.get()
+        last_name=self.last_name_entry.get()
+        email=self.email_entry.get()
+        contact_number=self.contact_number_entry.get()
+        password=self.password_entry.get()
+        confirm_password=self.confirm_password_entry.get()
+
+        #check if any field is empty
+        if first_name=="" or last_name=="" or email=="" or contact_number=="" or password=="" or confirm_password=="":
+            messagebox.showerror("Error","All fields are required",parent=self.root)
+        #check if password and confirm password are same
+        elif password!=confirm_password:
+            messagebox.showerror("Error","Password and Confirm Password should be same",parent=self.root)
+        #check if email is valid
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            messagebox.showerror("Error","Invalid Email",parent=self.root)
+        #check if contact number is valid
+        elif not re.match(r"[0-9]{10}", contact_number):
+            messagebox.showerror("Error","Invalid Contact Number",parent=self.root)
+        #check if user already exists
+        else:
+            try:
+                # Create a new cursor
+                with self.db.cursor() as cursor:
+                    cursor.execute("SELECT * FROM Users WHERE Email=%s", (email,))
+                    row = cursor.fetchone()
+                    if row is not None:
+                        messagebox.showerror("Error", "User already exists", parent=self.root)
+                    else:
+                        cursor.execute("INSERT INTO Users (Username, Password, Email, FullName, ContactNumber, Role) VALUES (%s, %s, %s, %s, %s, %s)", (email, password, email, first_name + " " + last_name, contact_number, "Customer"))
+                        self.db.commit()
+                        messagebox.showinfo("Success", "Account created successfully", parent=self.root)
+                        self.login_page()
+
+            except Exception as e:
+                messagebox.showerror("Error", f"Error due to: {str(e)}", parent=self.root)
+
+        
+    #pop up window with back to login screen or booking page
+    def pop_up_window(self):
+
+        #top level window
+        top=Toplevel()
+        top.title("Booking Successful")
+
+        #set the dimensions
+        top.geometry("500x300")
+
+        #back to login screen
+        back_to_login_button=Button(top,text="Back to Login",command=self.login_page,font=("times new roman",15,"bold"),bg="white",fg="black",cursor="hand2")
+        back_to_login_button.place(x=100,y=250,width=200,height=30)
+
+        #back to booking page
+        back_to_booking_button=Button(top,text="Back to Booking",command=self.main_welcome_page,font=("times new roman",15,"bold"),bg="white",fg="black",cursor="hand2")
+        back_to_booking_button.place(x=250,y=250,width=200,height=30)
 
 
+    #sign_out()
+    def sign_out(self):
+        self.login_success=False
+        self.main_welcome_page()
+        
+
+
+    #update iterenary page
+        
+
+
+        
+        
 
 #-------------------------------------------------------------------------------------------------------------
 
