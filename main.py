@@ -145,7 +145,7 @@ class busTicketReservation:
         self.conn=self.db.cursor()
 
         #create a frame for welcome image
-        welcome_image=Image.open("Bus Ticket Reservation System\TravelDosth\images\welcome.png") 
+        welcome_image=Image.open("images\welcome.png") 
         welcome_image=ImageTk.PhotoImage(welcome_image)
         welcome_image_label=Label(self.root,image=welcome_image)
         welcome_image_label.photo=welcome_image
@@ -511,7 +511,7 @@ class busTicketReservation:
             seat_frame.place(x=0,y=130,width=1332,height=550)
 
             #display bus image  
-            bus_image=Image.open("Bus Ticket Reservation System/TravelDosth/images/bus.png")
+            bus_image=Image.open("images/bus.png")
             bus_image=ImageTk.PhotoImage(bus_image)
             bus_image_label=Label(seat_frame,image=bus_image)
             bus_image_label.photo=bus_image
